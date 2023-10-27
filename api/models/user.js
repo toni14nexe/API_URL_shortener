@@ -14,6 +14,7 @@ const userSchema = mongoose.Schema({
     match: emailRegex,
   },
   password: { type: String, required: true },
+  validation: { type: Boolean, default: false },
 });
 
 module.exports = mongoose.model("User", userSchema);

@@ -3,11 +3,11 @@ const bcrypt = require("bcrypt");
 const User = require("../models/user");
 const jwt = require("jsonwebtoken");
 
-exports.user_signup = (req, res, next) => {
+exports.userSignup = (req, res, next) => {
   User.find({ username: req.body.username })
     .exec()
     .then((user) => {
-      if (user.length > 0)
+      if (user.length)
         return res.status(409).json({ message: "Username already exists" });
       else {
         bcrypt.hash(req.body.password, 10, (error, hash) => {
@@ -18,11 +18,6 @@ exports.user_signup = (req, res, next) => {
               username: req.body.username,
               email: req.body.email,
               password: hash,
-
-              // ---------- ROLE ADJUSTMENT ----------
-
-              // 'role' use only when creating fist user -> superadmin or admin
-              // default when creating is 'user':
               role: req.body.role,
             });
             user
@@ -37,7 +32,7 @@ exports.user_signup = (req, res, next) => {
     });
 };
 
-exports.user_login = (req, res, next) => {
+exports.userLogin = (req, res, next) => {
   User.findOne({ username: req.body.username })
     .exec()
     .then((user) => {
@@ -71,7 +66,7 @@ exports.user_login = (req, res, next) => {
     .catch((error) => res.status(500).json({ error: error }));
 };
 
-exports.get_all_users = (req, res, next) => {
+exports.getAllUsers = (req, res, next) => {
   User.find()
     .select("_id username email role")
     .exec()
@@ -84,7 +79,7 @@ exports.get_all_users = (req, res, next) => {
     .catch((error) => res.status(500).json({ error: error }));
 };
 
-exports.get_user = (req, res, next) => {
+exports.getUser = (req, res, next) => {
   User.findById(req.params.userId)
     .select("_id username email role")
     .exec()
@@ -98,7 +93,7 @@ exports.get_user = (req, res, next) => {
     .catch((error) => res.status(500).json({ error: error }));
 };
 
-exports.delete_user = (req, res, next) => {
+exports.deleteUser = (req, res, next) => {
   User.deleteOne({ _id: req.params.userId })
     .exec()
     .then((result) =>

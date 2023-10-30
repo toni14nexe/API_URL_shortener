@@ -7,6 +7,13 @@ const authCheck = require("../middleware/authCheck");
 router.post("/", authCheck, shortenerController.saveShortener);
 
 // Get logged user shorteners
-router.get("/", authCheck, shortenerController.getLoggedUserShortener);
+router.get("/", authCheck, shortenerController.getLoggedUserShorteners);
+
+// Get logged user shortener by ID
+router.get(
+  "/:shortenerId",
+  authCheck,
+  shortenerController.getLoggedUserShortener
+);
 
 module.exports = router;

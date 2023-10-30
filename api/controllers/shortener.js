@@ -16,15 +16,25 @@ exports.saveShortener = (req, res, next) => {
     .catch((error) => res.status(500).json({ error: error }));
 };
 
-exports.getLoggedUserShortener = (req, res, next) => {
+exports.getLoggedUserShorteners = (req, res, next) => {
   Shortener.find({ userId: req.userData._id })
     .select("url shortValue")
     .exec()
     .then((docs) => {
       res.status(200).json({
         total: docs.length,
-        Shorteners: docs,
+        Shortener: docs,
       });
+    })
+    .catch((error) => res.status(500).json({ error: error }));
+};
+
+exports.getLoggedUserShortener = (req, res, next) => {
+  Shortener.findById(req.params.shortenerId)
+    .select("url shortValue")
+    .exec()
+    .then((docs) => {
+      res.status(200).json(docs);
     })
     .catch((error) => res.status(500).json({ error: error }));
 };

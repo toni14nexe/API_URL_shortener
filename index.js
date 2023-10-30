@@ -35,7 +35,7 @@ app.use((req, res, next) => {
 // -------- ROUTES FOR METHODS HANDLING -------- //
 
 app.use("/users", require("./api/routes/users"));
-app.use("/shortener", require("./api/routes/shortener"));
+app.use("/shorteners", require("./api/routes/shortener"));
 
 // --------------------------------------------- //
 

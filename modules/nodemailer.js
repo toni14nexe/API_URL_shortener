@@ -11,7 +11,7 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-exports.sendValidationEmail = (recieverData) => {
+exports.sendValidationEmail = (recieverData, hash) => {
   const mailOptions = {
     from: {
       name: "URL Shortener",
@@ -20,8 +20,8 @@ exports.sendValidationEmail = (recieverData) => {
     to: recieverData.email,
     subject: "URL Shortener - Account verification",
     html: `<span style="color: black">Hi <b>${recieverData.username}</b>,<br><br>To verify your <b>URL Shortener
-      </b> account click on this: <a href="${process.env.WEB_APP_LINK}/account-verification/${recieverData._id}">
-      link</a><br><br>URL Shortener Application</span>`,
+      </b> account click on this: <a href="${process.env.WEB_APP_LINK}/account-verification?
+      userId=${recieverData._id}&hash=${hash}">link</a><br><br>URL Shortener Application</span>`,
   };
   sendMail(mailOptions);
 };

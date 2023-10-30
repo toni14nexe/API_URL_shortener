@@ -19,7 +19,7 @@ router.get("/:userId", authCheck, usersController.getUser);
 router.delete("/:userId", authCheck, usersController.deleteUser);
 
 // Validate user by ID
-router.patch("/:userId", usersController.validateUser);
+router.patch("/:userId/:hash", usersController.validateUser);
 
 // Send reset password email to user by ID
 router.patch("/:email/reset-password", usersController.resetPasswordEmail);

@@ -40,7 +40,11 @@ exports.userSignup = (req, res, next) => {
                           message: "User saved successfully",
                           user: user,
                         });
-                        emailSender.sendValidationEmail(user);
+                        bcrypt.hash(user.email, 10, (error, hash) => {
+                          if (error)
+                            return res.status(500).json({ error: error });
+                          else emailSender.sendValidationEmail(user, hash);
+                        });
                       })
                       .catch((error) => usersErrorHandling(error, res));
                   }
@@ -61,30 +65,32 @@ exports.userLogin = (req, res, next) => {
     .exec()
     .then((user) => {
       if (user) {
-        bcrypt.compare(req.body.password, user.password, (error, result) => {
-          if (error || !result)
-            res.status(401).json({ message: "Authentication failed" });
-          else {
-            const token = jwt.sign(
-              {
-                _id: user._id,
-                username: user.username,
-              },
-              process.env.TOKEN_SECRET_KEY,
-              { expiresIn: "1h" }
-            );
-            res.status(200).json({
-              message: "Authentication successful",
-              user: {
-                _id: user._id,
-                username: user.username,
-                email: user.email,
-                role: user.role,
-                token: token,
-              },
-            });
-          }
-        });
+        if (user.validation) {
+          bcrypt.compare(req.body.password, user.password, (error, result) => {
+            if (error || !result)
+              res.status(401).json({ message: "Authentication failed" });
+            else {
+              const token = jwt.sign(
+                {
+                  _id: user._id,
+                  username: user.username,
+                },
+                process.env.TOKEN_SECRET_KEY,
+                { expiresIn: "1h" }
+              );
+              res.status(200).json({
+                message: "Authentication successful",
+                user: {
+                  _id: user._id,
+                  username: user.username,
+                  email: user.email,
+                  role: user.role,
+                  token: token,
+                },
+              });
+            }
+          });
+        } else res.status(401).json({ message: "Validate your email first" });
       } else res.status(401).json({ message: "User doesn't exists" });
     })
     .catch((error) => usersErrorHandling(error, res));
@@ -129,7 +135,7 @@ exports.deleteUser = (req, res, next) => {
 };
 
 exports.validateUser = (req, res, next) => {
-  User.findOne({ _id: req.params.userId })
+  User.findById(req.params.userId)
     .select("_id username email role validation")
     .exec()
     .then((doc) => {
@@ -140,11 +146,17 @@ exports.validateUser = (req, res, next) => {
         )
           .exec()
           .then(() => {
-            res.status(200).json({
-              message: "User is validated successfully",
-              debt: { ...doc._doc, validation: true },
+            bcrypt.compare(doc.email, req.params.hash, (error, result) => {
+              if (error || !result)
+                res.status(401).json({ message: "Unauthorized error" });
+              else {
+                res.status(200).json({
+                  message: "User is validated successfully",
+                  debt: { ...doc._doc, validation: true },
+                });
+                emailSender.sendAfterValidationEmail(doc._doc);
+              }
             });
-            emailSender.sendAfterValidationEmail(doc._doc);
           })
           .catch((error) => usersErrorHandling(error, res));
       } else

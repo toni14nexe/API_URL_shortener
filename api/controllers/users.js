@@ -3,34 +3,56 @@ const bcrypt = require("bcrypt");
 const User = require("../models/user");
 const jwt = require("jsonwebtoken");
 const emailSender = require("../../modules/nodemailer");
+const { usersErrorHandling } = require("../errorHandling");
 
 exports.userSignup = (req, res, next) => {
-  User.find({ username: req.body.username })
-    .exec()
-    .then((user) => {
-      if (user.length)
-        return res.status(409).json({ message: "Username already exists" });
-      else {
-        bcrypt.hash(req.body.password, 10, (error, hash) => {
-          if (error) return res.status(500).json({ error: error });
-          else {
-            const user = new User({
-              _id: new mongoose.Types.ObjectId(),
-              username: req.body.username,
-              email: req.body.email,
-              password: hash,
-              role: req.body.role,
+  const passwordRegex =
+    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+  if (passwordRegex.test(req.body.password)) {
+    User.find({ username: req.body.username })
+      .exec()
+      .then((user) => {
+        if (user.length)
+          return res.status(409).json({ message: "Username already exists" });
+        else {
+          User.find({ email: req.body.email })
+            .exec()
+            .then((user) => {
+              if (user.length)
+                return res
+                  .status(409)
+                  .json({ message: "Email already exists" });
+              else {
+                bcrypt.hash(req.body.password, 10, (error, hash) => {
+                  if (error) return res.status(500).json({ error: error });
+                  else {
+                    const user = new User({
+                      _id: new mongoose.Types.ObjectId(),
+                      username: req.body.username,
+                      email: req.body.email,
+                      password: hash,
+                      role: req.body.role,
+                    });
+                    user
+                      .save()
+                      .then(() => {
+                        res.status(201).json({
+                          message: "User saved successfully",
+                          user: user,
+                        });
+                        emailSender.sendValidationEmail(user);
+                      })
+                      .catch((error) => usersErrorHandling(error, res));
+                  }
+                });
+              }
             });
-            user
-              .save()
-              .then(() => {
-                res.status(201).json({ message: "User saved successfully" });
-                emailSender.sendValidationEmail(user);
-              })
-              .catch((error) => res.status(500).json({ error: error }));
-          }
-        });
-      }
+        }
+      });
+  } else
+    return res.status(409).json({
+      message:
+        "Password should be at least 8 letters long and should contain at least one uppercase letter, one lowercase letter, one number and one special character",
     });
 };
 
@@ -65,7 +87,7 @@ exports.userLogin = (req, res, next) => {
         });
       } else res.status(401).json({ message: "User doesn't exists" });
     })
-    .catch((error) => res.status(500).json({ error: error }));
+    .catch((error) => usersErrorHandling(error, res));
 };
 
 exports.getAllUsers = (req, res, next) => {
@@ -92,7 +114,7 @@ exports.getUser = (req, res, next) => {
           .status(404)
           .json({ Message: "No valid entry found for provided ID" });
     })
-    .catch((error) => res.status(500).json({ error: error }));
+    .catch((error) => usersErrorHandling(error, res));
 };
 
 exports.deleteUser = (req, res, next) => {
@@ -103,15 +125,15 @@ exports.deleteUser = (req, res, next) => {
         message: "User was deleted successfully",
       })
     )
-    .catch((error) => res.status(500).json({ error: error }));
+    .catch((error) => usersErrorHandling(error, res));
 };
 
 exports.validateUser = (req, res, next) => {
-  User.findById(req.params.userId)
+  User.findOne({ _id: req.params.userId })
     .select("_id username email role validation")
     .exec()
     .then((doc) => {
-      if (doc) {
+      if (doc._id) {
         User.updateOne(
           { _id: req.params.userId },
           { $set: { validation: true } }
@@ -124,7 +146,7 @@ exports.validateUser = (req, res, next) => {
             });
             emailSender.sendAfterValidationEmail(doc._doc);
           })
-          .catch((error) => res.status(500).json({ error: error }));
+          .catch((error) => usersErrorHandling(error, res));
       } else
         res
           .status(404)

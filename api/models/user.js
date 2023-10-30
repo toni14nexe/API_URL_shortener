@@ -6,14 +6,23 @@ const emailRegex =
 const userSchema = mongoose.Schema({
   _id: mongoose.Schema.Types.ObjectId,
   role: { type: String, default: "user" },
-  username: { type: String, required: true },
+  username: {
+    type: String,
+    required: true,
+    unique: true,
+    minLength: 5,
+    maxLength: 50,
+  },
   email: {
     type: String,
     required: true,
     unique: true,
     match: emailRegex,
   },
-  password: { type: String, required: true },
+  password: {
+    type: String,
+    required: true,
+  },
   validation: { type: Boolean, default: false },
 });
 

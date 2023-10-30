@@ -6,7 +6,7 @@ const urlRegex =
 const shortenerSchema = mongoose.Schema({
   _id: mongoose.Schema.Types.ObjectId,
   url: { type: String, required: true, match: urlRegex },
-  shortValue: { type: String, required: true },
+  shortValue: { type: String, required: true, minLength: 3 },
   userId: { type: String, required: true },
 });
 

@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const Shortener = require("../models/shortener");
+const { usersErrorHandling } = require("../errorHandling");
 
 exports.saveShortener = (req, res, next) => {
   const shortener = new Shortener({
@@ -13,7 +14,7 @@ exports.saveShortener = (req, res, next) => {
     .then(() =>
       res.status(201).json({ message: "Shortener saved successfully" })
     )
-    .catch((error) => res.status(500).json({ error: error }));
+    .catch((error) => usersErrorHandling(error, res));
 };
 
 exports.getLoggedUserShorteners = (req, res, next) => {
@@ -26,7 +27,7 @@ exports.getLoggedUserShorteners = (req, res, next) => {
         Shortener: docs,
       });
     })
-    .catch((error) => res.status(500).json({ error: error }));
+    .catch((error) => usersErrorHandling(error, res));
 };
 
 exports.getLoggedUserShortener = (req, res, next) => {
@@ -36,5 +37,5 @@ exports.getLoggedUserShortener = (req, res, next) => {
     .then((docs) => {
       res.status(200).json(docs);
     })
-    .catch((error) => res.status(500).json({ error: error }));
+    .catch((error) => usersErrorHandling(error, res));
 };

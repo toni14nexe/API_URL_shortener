@@ -120,7 +120,7 @@ exports.getUser = (req, res, next) => {
 exports.deleteUser = (req, res, next) => {
   User.deleteOne({ _id: req.params.userId })
     .exec()
-    .then((result) =>
+    .then(() =>
       res.status(200).json({
         message: "User was deleted successfully",
       })
@@ -151,5 +151,75 @@ exports.validateUser = (req, res, next) => {
         res
           .status(404)
           .json({ Message: "No valid entry found for provided ID" });
+    })
+    .catch((error) => usersErrorHandling(error, res));
+};
+
+exports.resetPasswordEmail = (req, res, next) => {
+  User.findOne({ email: req.params.email })
+    .select("_id email username")
+    .exec()
+    .then((doc) => {
+      if (doc._id) {
+        bcrypt.hash(doc.email, 10, (error, hash) => {
+          if (error) return res.status(500).json({ error: error });
+          else {
+            emailSender.sendBeforePasswordReset(doc._doc, hash);
+            res.status(200).json({
+              message: "Reset password e-mail sended successfully",
+            });
+          }
+        });
+      } else
+        res
+          .status(404)
+          .json({ Message: "No valid entry found for provided ID" });
+    })
+    .catch((error) => usersErrorHandling(error, res));
+};
+
+exports.resetPassword = (req, res, next) => {
+  const passwordRegex =
+    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+  if (passwordRegex.test(req.body.password)) {
+    User.findOne({ _id: req.params.userId })
+      .select("_id username email validation role")
+      .exec()
+      .then((doc) => {
+        if (doc._id) {
+          bcrypt.compare(doc.email, req.body.hash, (error, result) => {
+            if (error || !result)
+              res.status(401).json({ message: "Unauthorized error" });
+            else {
+              bcrypt.hash(req.body.password, 10, (error, hash) => {
+                if (error) return res.status(500).json({ error: error });
+                else {
+                  User.updateOne(
+                    { _id: req.params.userId },
+                    { $set: { password: hash } }
+                  )
+                    .exec()
+                    .then(() => {
+                      emailSender.sendAfterPasswordReset(doc._doc);
+                      res.status(200).json({
+                        message: "User password changed successfully",
+                        debt: { ...doc._doc },
+                      });
+                    })
+                    .catch((error) => usersErrorHandling(error, res));
+                }
+              });
+            }
+          });
+        } else
+          res
+            .status(404)
+            .json({ Message: "No valid entry found for provided ID" });
+      })
+      .catch((error) => usersErrorHandling(error, res));
+  } else
+    return res.status(409).json({
+      message:
+        "Password should be at least 8 letters long and should contain at least one uppercase letter, one lowercase letter, one number and one special character",
     });
 };

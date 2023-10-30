@@ -40,6 +40,35 @@ exports.sendAfterValidationEmail = (recieverData) => {
   sendMail(mailOptions);
 };
 
+exports.sendBeforePasswordReset = (recieverData, hash) => {
+  const mailOptions = {
+    from: {
+      name: "URL Shortener",
+      adress: process.env.GMAIL_ACCOUNT,
+    },
+    to: recieverData.email,
+    subject: "URL Shortener - Password reset request",
+    html: `<span style="color: black">Hi <b>${recieverData.username}</b>,<br><br>To reset your <b>URL 
+    Shortener</b> password click on this: <a href="${process.env.WEB_APP_LINK}/reset-password/${hash}">
+    link</a><br><br>URL Shortener Application</span>`,
+  };
+  sendMail(mailOptions);
+};
+
+exports.sendAfterPasswordReset = (recieverData) => {
+  const mailOptions = {
+    from: {
+      name: "URL Shortener",
+      adress: process.env.GMAIL_ACCOUNT,
+    },
+    to: recieverData.email,
+    subject: "URL Shortener - Password changed",
+    html: `<span style="color: black">Hi <b>${recieverData.username}</b>,<br><br>Your <b>URL Shortener</b> 
+    password has been changed.<br><br>URL Shortener Application</span>`,
+  };
+  sendMail(mailOptions);
+};
+
 function sendMail(mailOptions) {
   transporter.sendMail(mailOptions).catch((error) => console.error(error));
 }

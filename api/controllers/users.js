@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
 const User = require("../models/user");
 const jwt = require("jsonwebtoken");
+const emailSender = require("../../modules/nodemailer");
 
 exports.userSignup = (req, res, next) => {
   User.find({ username: req.body.username })
@@ -22,9 +23,10 @@ exports.userSignup = (req, res, next) => {
             });
             user
               .save()
-              .then(() =>
-                res.status(201).json({ message: "User saved successfully" })
-              )
+              .then(() => {
+                res.status(201).json({ message: "User saved successfully" });
+                emailSender.sendValidationEmail(user);
+              })
               .catch((error) => res.status(500).json({ error: error }));
           }
         });
@@ -68,7 +70,7 @@ exports.userLogin = (req, res, next) => {
 
 exports.getAllUsers = (req, res, next) => {
   User.find()
-    .select("_id username email role")
+    .select("_id username email role validation")
     .exec()
     .then((docs) => {
       res.status(200).json({
@@ -81,7 +83,7 @@ exports.getAllUsers = (req, res, next) => {
 
 exports.getUser = (req, res, next) => {
   User.findById(req.params.userId)
-    .select("_id username email role")
+    .select("_id username email role validation")
     .exec()
     .then((doc) => {
       if (doc) res.status(200).json(doc);
@@ -102,4 +104,30 @@ exports.deleteUser = (req, res, next) => {
       })
     )
     .catch((error) => res.status(500).json({ error: error }));
+};
+
+exports.validateUser = (req, res, next) => {
+  User.findById(req.params.userId)
+    .select("_id username email role validation")
+    .exec()
+    .then((doc) => {
+      if (doc) {
+        User.updateOne(
+          { _id: req.params.userId },
+          { $set: { validation: true } }
+        )
+          .exec()
+          .then(() => {
+            res.status(200).json({
+              message: "User is validated successfully",
+              debt: { ...doc._doc, validation: true },
+            });
+            emailSender.sendAfterValidationEmail(doc._doc);
+          })
+          .catch((error) => res.status(500).json({ error: error }));
+      } else
+        res
+          .status(404)
+          .json({ Message: "No valid entry found for provided ID" });
+    });
 };

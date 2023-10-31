@@ -17,6 +17,7 @@ describe("User model test", () => {
         username: "jestTest",
         email: "jesttesting@test.com",
         password: tempPassword,
+        role: "admin",
       })
       .then((response) => {
         testUser = response.data.user;

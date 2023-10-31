@@ -90,7 +90,13 @@ exports.deleteShortener = (req, res, next) => {
               })
             )
             .catch((error) => usersErrorHandling(error, res));
-        }
-      }
+        } else
+          res.status(401).json({
+            message: "Unauthorized error",
+          });
+      } else
+        res.status(404).json({
+          message: "Wrong shortener ID",
+        });
     });
 };

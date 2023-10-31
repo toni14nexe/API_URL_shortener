@@ -129,14 +129,33 @@ exports.getUser = (req, res, next) => {
 };
 
 exports.deleteUser = (req, res, next) => {
-  User.deleteOne({ _id: req.params.userId })
+  User.findById(req.userData._id)
+    .select("_id role")
     .exec()
-    .then(() =>
-      res.status(200).json({
-        message: "User was deleted successfully",
-      })
-    )
-    .catch((error) => usersErrorHandling(error, res));
+    .then((doc) => {
+      if (doc) {
+        if (
+          doc.role === "admin" ||
+          doc.role === "superadmin" ||
+          doc._id == req.userData._id
+        ) {
+          User.deleteOne({ _id: req.params.userId })
+            .exec()
+            .then(() =>
+              res.status(200).json({
+                message: "User deleted successfully",
+              })
+            )
+            .catch((error) => usersErrorHandling(error, res));
+        } else
+          res.status(404).json({
+            message: "Unauthorized error",
+          });
+      } else
+        res.status(404).json({
+          message: "Wrong user ID",
+        });
+    });
 };
 
 exports.validateUser = (req, res, next) => {

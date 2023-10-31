@@ -12,7 +12,9 @@ exports.saveShortener = (req, res, next) => {
   shortener
     .save()
     .then(() =>
-      res.status(201).json({ message: "Shortener saved successfully" })
+      res
+        .status(201)
+        .json({ message: "Shortener saved successfully", shortener: shortener })
     )
     .catch((error) => usersErrorHandling(error, res));
 };

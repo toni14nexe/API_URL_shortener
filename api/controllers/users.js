@@ -40,7 +40,7 @@ exports.userSignup = (req, res, next) => {
                           if (error)
                             return res.status(500).json({ error: error });
                           else {
-                            emailHash = emailHash.replaceAll("/", "|");
+                            emailHash = emailHash.replaceAll("/", "|*+|");
                             emailSender.sendValidationEmail(user, emailHash);
                             res.status(201).json({
                               message: "User saved successfully",
@@ -153,7 +153,7 @@ exports.validateUser = (req, res, next) => {
           .then(() => {
             bcrypt.compare(
               doc.email,
-              req.params.hash.replaceAll("|", "/"),
+              req.params.hash.replaceAll("|*+|", "/"),
               (error, result) => {
                 if (error || !result)
                   res.status(401).json({ message: "Unauthorized error" });
@@ -185,7 +185,7 @@ exports.resetPasswordEmail = (req, res, next) => {
         bcrypt.hash(doc.email, 10, (error, emailHash) => {
           if (error) return res.status(500).json({ error: error });
           else {
-            emailHash = emailHash.replaceAll("/", "|");
+            emailHash = emailHash.replaceAll("/", "|*+|");
             emailSender.sendBeforePasswordReset(doc._doc, emailHash);
             res.status(200).json({
               message: "Reset password e-mail sended successfully",
@@ -212,7 +212,7 @@ exports.resetPassword = (req, res, next) => {
         if (doc._id) {
           bcrypt.compare(
             doc.email,
-            req.body.hash.replaceAll("|", "/"),
+            req.body.hash.replaceAll("|*+|", "/"),
             (error, result) => {
               if (error || !result)
                 res.status(401).json({ message: "Unauthorized error" });

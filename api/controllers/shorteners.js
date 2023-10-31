@@ -19,7 +19,7 @@ exports.saveShortener = (req, res, next) => {
 
 exports.getLoggedUserShorteners = (req, res, next) => {
   Shortener.find({ userId: req.userData._id })
-    .select("url shortValue")
+    .select("url shortValue createdAt")
     .exec()
     .then((docs) => {
       res.status(200).json({
@@ -32,7 +32,7 @@ exports.getLoggedUserShorteners = (req, res, next) => {
 
 exports.getLoggedUserShortener = (req, res, next) => {
   Shortener.findById(req.params.shortenerId)
-    .select("url shortValue")
+    .select("url shortValue createdAt")
     .exec()
     .then((docs) => {
       res.status(200).json(docs);

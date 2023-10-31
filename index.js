@@ -2,15 +2,12 @@ const express = require("express");
 const app = express();
 const morgan = require("morgan");
 const bodyParser = require("body-parser");
-const mongoose = require("mongoose");
+const mongoose = require("./modules/mongoose");
 require("dotenv").config({
   path: "./.env",
 });
 
-mongoose.connect(
-  `mongodb+srv://${process.env.MONGO_USERNAME}:${process.env.MONGO_PASS}@${process.env.MONGO_LINK}`,
-  { useNewUrlParser: true, useUnifiedTopology: true }
-);
+mongoose.connect();
 
 app.use(morgan("dev"));
 app.use(bodyParser.urlencoded({ extended: false }));

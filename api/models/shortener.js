@@ -8,6 +8,7 @@ const shortenerSchema = mongoose.Schema({
   url: { type: String, required: true, match: urlRegex },
   shortValue: { type: String, required: true, minLength: 3 },
   userId: { type: String, required: true },
+  createdAt: { type: Date, default: Date.now },
 });
 
 module.exports = mongoose.model("Shortener", shortenerSchema);

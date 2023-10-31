@@ -36,14 +36,18 @@ exports.userSignup = (req, res, next) => {
                     user
                       .save()
                       .then(() => {
-                        res.status(201).json({
-                          message: "User saved successfully",
-                          user: user,
-                        });
-                        bcrypt.hash(user.email, 10, (error, hash) => {
+                        bcrypt.hash(user.email, 10, (error, emailHash) => {
                           if (error)
                             return res.status(500).json({ error: error });
-                          else emailSender.sendValidationEmail(user, hash);
+                          else {
+                            emailHash = emailHash.replaceAll("/", "|");
+                            emailSender.sendValidationEmail(user, emailHash);
+                            res.status(201).json({
+                              message: "User saved successfully",
+                              user: user,
+                              hash: emailHash,
+                            });
+                          }
                         });
                       })
                       .catch((error) => usersErrorHandling(error, res));
@@ -86,6 +90,7 @@ exports.userLogin = (req, res, next) => {
                   email: user.email,
                   role: user.role,
                   token: token,
+                  createdAt: user.createdAt,
                 },
               });
             }
@@ -111,7 +116,7 @@ exports.getAllUsers = (req, res, next) => {
 
 exports.getUser = (req, res, next) => {
   User.findById(req.params.userId)
-    .select("_id username email role validation")
+    .select("_id username email role validation createdAt")
     .exec()
     .then((doc) => {
       if (doc) res.status(200).json(doc);
@@ -136,7 +141,7 @@ exports.deleteUser = (req, res, next) => {
 
 exports.validateUser = (req, res, next) => {
   User.findById(req.params.userId)
-    .select("_id username email role validation")
+    .select("_id username email role validation createdAt")
     .exec()
     .then((doc) => {
       if (doc._id) {
@@ -146,17 +151,21 @@ exports.validateUser = (req, res, next) => {
         )
           .exec()
           .then(() => {
-            bcrypt.compare(doc.email, req.params.hash, (error, result) => {
-              if (error || !result)
-                res.status(401).json({ message: "Unauthorized error" });
-              else {
-                res.status(200).json({
-                  message: "User is validated successfully",
-                  debt: { ...doc._doc, validation: true },
-                });
-                emailSender.sendAfterValidationEmail(doc._doc);
+            bcrypt.compare(
+              doc.email,
+              req.params.hash.replaceAll("|", "/"),
+              (error, result) => {
+                if (error || !result)
+                  res.status(401).json({ message: "Unauthorized error" });
+                else {
+                  res.status(200).json({
+                    message: "User is validated successfully",
+                    debt: { ...doc._doc, validation: true },
+                  });
+                  emailSender.sendAfterValidationEmail(doc._doc);
+                }
               }
-            });
+            );
           })
           .catch((error) => usersErrorHandling(error, res));
       } else
@@ -173,12 +182,14 @@ exports.resetPasswordEmail = (req, res, next) => {
     .exec()
     .then((doc) => {
       if (doc._id) {
-        bcrypt.hash(doc.email, 10, (error, hash) => {
+        bcrypt.hash(doc.email, 10, (error, emailHash) => {
           if (error) return res.status(500).json({ error: error });
           else {
-            emailSender.sendBeforePasswordReset(doc._doc, hash);
+            emailHash = emailHash.replaceAll("/", "|");
+            emailSender.sendBeforePasswordReset(doc._doc, emailHash);
             res.status(200).json({
               message: "Reset password e-mail sended successfully",
+              hash: emailHash,
             });
           }
         });
@@ -199,30 +210,34 @@ exports.resetPassword = (req, res, next) => {
       .exec()
       .then((doc) => {
         if (doc._id) {
-          bcrypt.compare(doc.email, req.body.hash, (error, result) => {
-            if (error || !result)
-              res.status(401).json({ message: "Unauthorized error" });
-            else {
-              bcrypt.hash(req.body.password, 10, (error, hash) => {
-                if (error) return res.status(500).json({ error: error });
-                else {
-                  User.updateOne(
-                    { _id: req.params.userId },
-                    { $set: { password: hash } }
-                  )
-                    .exec()
-                    .then(() => {
-                      emailSender.sendAfterPasswordReset(doc._doc);
-                      res.status(200).json({
-                        message: "User password changed successfully",
-                        debt: { ...doc._doc },
-                      });
-                    })
-                    .catch((error) => usersErrorHandling(error, res));
-                }
-              });
+          bcrypt.compare(
+            doc.email,
+            req.body.hash.replaceAll("|", "/"),
+            (error, result) => {
+              if (error || !result)
+                res.status(401).json({ message: "Unauthorized error" });
+              else {
+                bcrypt.hash(req.body.password, 10, (error, hash) => {
+                  if (error) return res.status(500).json({ error: error });
+                  else {
+                    User.updateOne(
+                      { _id: req.params.userId },
+                      { $set: { password: hash } }
+                    )
+                      .exec()
+                      .then(() => {
+                        emailSender.sendAfterPasswordReset(doc._doc);
+                        res.status(200).json({
+                          message: "User password changed successfully",
+                          debt: { ...doc._doc },
+                        });
+                      })
+                      .catch((error) => usersErrorHandling(error, res));
+                  }
+                });
+              }
             }
-          });
+          );
         } else
           res
             .status(404)

@@ -20,7 +20,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"username\": \"test\",\n    \"email\": \"test@test.com\",\n    \"password\": \"Test1234*\"\n}",
+							"raw": "{\n    \"username\": \"test1234\",\n    \"email\": \"test@test.com\",\n    \"password\": \"Test1234*\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -70,7 +70,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"username\": \"test\",\n    \"password\": \"Test1234*\"\n}",
+							"raw": "{\n    \"username\": \"test1234\",\n    \"password\": \"Test1234*\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -305,14 +305,13 @@
 							}
 						},
 						"url": {
-							"raw": "{{baseURL}}/users/:email/reset-password",
+							"raw": "{{baseURL}}/users/:email",
 							"host": [
 								"{{baseURL}}"
 							],
 							"path": [
 								"users",
-								":email",
-								"reset-password"
+								":email"
 							],
 							"variable": [
 								{
@@ -422,6 +421,68 @@
 					"response": []
 				},
 				{
+					"name": "Save shortener Copy",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disabledSystemHeaders": {}
+					},
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "authorization",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"url\": \"http://test-url-replaced.com\",\n    \"shortValue\": \"Test value replaced\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseURL}}/shorteners/:shortenerId",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"shorteners",
+								":shortenerId"
+							],
+							"variable": [
+								{
+									"key": "shortenerId",
+									"value": "6540fde995c9b783c926760c"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "Get logged user shorteners",
 					"protocolProfileBehavior": {
 						"disableBodyPruning": true,
@@ -484,6 +545,43 @@
 								{
 									"key": "shortenerId",
 									"value": "653f8ada29077426eddba331"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete shortener",
+					"protocolProfileBehavior": {
+						"disabledSystemHeaders": {}
+					},
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "authorization",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseURL}}/shorteners/:shortenerId",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"shorteners",
+								":shortenerId"
+							],
+							"variable": [
+								{
+									"key": "shortenerId",
+									"value": "6540fdcf2546e10ab2f982d0"
 								}
 							]
 						}

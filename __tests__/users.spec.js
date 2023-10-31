@@ -11,7 +11,7 @@ let resetPasswordHash = undefined;
 describe("User model test", () => {
   it("Model exist", () => expect(User).toBeDefined());
 
-  /* it("User signup", (done) => {
+  it("User signup", (done) => {
     axios
       .post(`${API_link}/users/signup`, {
         username: "jestTest",
@@ -88,5 +88,5 @@ describe("User model test", () => {
         },
       })
       .then(() => done());
-  }); */
+  });
 });

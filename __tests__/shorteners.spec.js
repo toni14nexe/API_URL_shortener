@@ -59,4 +59,31 @@ describe("User model test", () => {
       })
       .then(() => done());
   });
+
+  it("Update shortener", (done) => {
+    axios
+      .put(
+        `${API_link}/shorteners/${newShoretenerId}`,
+        {
+          url: "https://test-url.com.update",
+          shortValue: "Test value update",
+        },
+        {
+          headers: {
+            Authorization: `${authorization}`,
+          },
+        }
+      )
+      .then(() => done());
+  });
+
+  it("Delete shortener", (done) => {
+    axios
+      .delete(`${API_link}/shorteners/${newShoretenerId}`, {
+        headers: {
+          Authorization: `${authorization}`,
+        },
+      })
+      .then(() => done());
+  });
 });

@@ -16,4 +16,10 @@ router.get(
   shortenerController.getLoggedUserShortener
 );
 
+// Update shortener value by ID
+router.put("/:shortenerId", authCheck, shortenerController.updateShortener);
+
+// Delete shortener value by ID
+router.delete("/:shortenerId", authCheck, shortenerController.deleteShortener);
+
 module.exports = router;

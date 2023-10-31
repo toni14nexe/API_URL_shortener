@@ -41,3 +41,56 @@ exports.getLoggedUserShortener = (req, res, next) => {
     })
     .catch((error) => usersErrorHandling(error, res));
 };
+
+exports.updateShortener = (req, res, next) => {
+  Shortener.findOne({ _id: req.params.shortenerId })
+    .select("url shortValue createdAt userId")
+    .exec()
+    .then((doc) => {
+      if (doc._id) {
+        if (doc.userId === req.userData._id) {
+          Shortener.updateOne(
+            { _id: req.params.shortenerId },
+            { $set: { url: req.body.url, shortValue: req.body.shortValue } }
+          )
+            .exec()
+            .then(() => {
+              res.status(200).json({
+                message: "Shortener changed successfully",
+                shortener: {
+                  ...doc._doc,
+                  url: req.body.url,
+                  shortValue: req.body.shortValue,
+                },
+              });
+            });
+        } else
+          res.status(401).json({
+            message: "Unauthorized error",
+          });
+      } else
+        res.status(404).json({
+          message: "Wrong shortener ID",
+        });
+    });
+};
+
+exports.deleteShortener = (req, res, next) => {
+  Shortener.findOne({ _id: req.params.shortenerId })
+    .select("url shortValue createdAt userId")
+    .exec()
+    .then((doc) => {
+      if (doc._id) {
+        if (doc.userId === req.userData._id) {
+          Shortener.deleteOne({ _id: req.params.shortenerId })
+            .exec()
+            .then((shortener) =>
+              res.status(200).json({
+                message: "Shortener was deleted successfully",
+              })
+            )
+            .catch((error) => usersErrorHandling(error, res));
+        }
+      }
+    });
+};

@@ -1,0 +1,360 @@
+swagger: "2.0"
+info:
+  title: URL Shoretener
+  description: Application for simplifying and shortening URLs or longer phrases.
+  version: 1.0.0
+host: localhost:3000/
+securityDefinitions:
+  Bearer:
+    type: apiKey
+    name: Authorization
+    in: header
+    description: Enter the token with the `token prefix`, e.g. "token abcde12345".
+paths:
+  /users/signup:
+    post:
+      summary: Signup as user
+      tags:
+        - Users
+      parameters:
+        - in: body
+          name: body
+          schema:
+            type: object
+            required:
+              - username
+              - email
+              - password
+            properties:
+              username:
+                type: string
+              email:
+                type: string
+              password:
+                type: string
+          required: true
+      responses:
+        "201":
+          description: Ok
+        "409":
+          description: Conflict - Object with more conflict data
+        "500":
+          description: Internal server error
+
+  /users/login:
+    post:
+      summary: Login as user
+      tags:
+        - Users
+      parameters:
+        - in: body
+          name: body
+          schema:
+            type: object
+            required:
+              - username
+              - password
+            properties:
+              username:
+                type: string
+              password:
+                type: string
+      responses:
+        "200":
+          description: Ok
+        "401":
+          description: Unauthorized - Object with detail error description
+
+  /users/{userId}/reset-password:
+    put:
+      summary: Reset user password - With reset password hash
+      tags:
+        - Users
+      parameters:
+        - in: path
+          name: userId
+          schema:
+            type: string
+          required: true
+        - in: body
+          name: body
+          schema:
+            type: object
+            required:
+              - password
+              - hash
+            properties:
+              password:
+                type: string
+              hash:
+                type: string
+      responses:
+        "200":
+          description: Ok
+        "401":
+          description: Unauthorized - Object with detail error description
+        "404":
+          description: Not found - With detail error description
+        "409":
+          description: Conflict - Object with more conflict data
+        "500":
+          description: Internal server error
+
+  /users:
+    get:
+      summary: Returns a list of users
+      tags:
+        - Users
+      description: Only for authenticated users
+      security:
+        - Bearer: []
+      responses:
+        "200":
+          description: Ok - JSON array of user objects
+        "500":
+          description: Internal server error
+
+  /users/{userId}:
+    get:
+      summary: Returns a specific user by user ID
+      tags:
+        - Users
+      description: Only for authenticated users
+      security:
+        - Bearer: []
+      parameters:
+        - in: path
+          name: userId
+          schema:
+            type: string
+          required: true
+      responses:
+        "200":
+          description: Ok - User objects
+        "404":
+          description: Not found - With detail error description
+
+    delete:
+      summary: Delete user by user ID
+      description: Only admin or user himself can delete user account
+      security:
+        - Bearer: []
+      tags:
+        - Users
+      responses:
+        "200":
+          description: Ok
+        "404":
+          description: Not found - With detail error description
+
+  /users/{userId}/{hash}:
+    patch:
+      summary: Account validation - With signup hash
+      tags:
+        - Users
+      parameters:
+        - in: path
+          name: userId
+          schema:
+            type: string
+          required: true
+        - in: path
+          name: hash
+          schema:
+            type: string
+          required: true
+      responses:
+        "200":
+          description: Ok
+        "401":
+          description: Unauthorized - Object with detail error description
+        "404":
+          description: Not found - With detail error description
+
+  /users/{email}:
+    patch:
+      summary: Send reset password email / Get reset password hash
+      tags:
+        - Users
+      parameters:
+        - in: path
+          name: email
+          schema:
+            type: string
+          required: true
+      responses:
+        "200":
+          description: Ok
+        "401":
+          description: Unauthorized - Object with detail error description
+        "404":
+          description: Not found - With detail error description
+        "409":
+          description: Conflict - Object with more conflict data
+        "500":
+          description: Internal server error
+
+  /shorteners:
+    post:
+      summary: Create new shortener
+      description: Only for authenticated users
+      security:
+        - Bearer: []
+      tags:
+        - Shorteners
+      parameters:
+        - in: body
+          name: body
+          schema:
+            type: object
+            required:
+              - url
+              - shortValue
+            properties:
+              url:
+                type: string
+              shortValue:
+                type: string
+      responses:
+        "201":
+          description: Ok
+        "404":
+          description: Not found - With detail error description
+        "409":
+          description: Conflict - Object with more conflict data
+        "500":
+          description: Internal server error
+
+    get:
+      summary: Get all logged user shorteners
+      description: Only for authenticated users
+      security:
+        - Bearer: []
+      tags:
+        - Shorteners
+      responses:
+        "200":
+          description: Ok - JSON array of all logged users shorteners objects
+        "404":
+          description: Not found - With detail error description
+        "409":
+          description: Conflict - Object with more conflict data
+        "500":
+          description: Internal server error
+
+  /shorteners/{shortenerId}:
+    get:
+      summary: Get shortener value by shortener ID
+      description: Only for authenticated users
+      security:
+        - Bearer: []
+      tags:
+        - Shorteners
+      parameters:
+        - in: path
+          name: shortenerId
+          schema:
+            type: string
+          required: true
+      responses:
+        "200":
+          description: Ok
+        "401":
+          description: Unauthorized - Object with detail error description
+        "404":
+          description: Not found - With detail error description
+
+    put:
+      summary: Change shortener value by shortener ID
+      description: Only for authenticated users
+      security:
+        - Bearer: []
+      tags:
+        - Shorteners
+      parameters:
+        - in: path
+          name: shortenerId
+          schema:
+            type: string
+          required: true
+        - in: body
+          name: body
+          schema:
+            type: object
+            properties:
+              url:
+                type: string
+              shortValue:
+                type: string
+      responses:
+        "200":
+          description: Ok - JSON array of all logged users shorteners objects
+        "404":
+          description: Not found - With detail error description
+        "409":
+          description: Conflict - Object with more conflict data
+        "500":
+          description: Internal server error
+
+    delete:
+      summary: Delete shortener by shortener ID
+      description: Only for authenticated users
+      security:
+        - Bearer: []
+      tags:
+        - Shorteners
+      parameters:
+        - in: path
+          name: shortenerId
+          schema:
+            type: string
+          required: true
+      responses:
+        "200":
+          description: Ok
+        "401":
+          description: Unauthorized - Object with detail error description
+        "404":
+          description: Not found - With detail error description
+        "409":
+          description: Conflict - Object with more conflict data
+        "500":
+          description: Internal server error
+
+definitions:
+  User:
+    properties:
+      id:
+        type: integer
+      username:
+        type: string
+      email:
+        type: string
+      password:
+        type: string
+      validation:
+        type: boolean
+      createdAt:
+        type: string
+    required:
+      - username
+      - email
+      - password
+    description: ID is automatically generated by MongoDB, userId and createdAt are automatically generated at creation, default validation value is false
+
+  Shortener:
+    properties:
+      id:
+        type: integer
+      url:
+        type: string
+      shortValue:
+        type: string
+      userId:
+        type: string
+      createdAt:
+        type: string
+    required:
+      - url
+      - shortValue
+    description: ID is automatically generated by MongoDB, userId and createdAt are automatically generated at creation

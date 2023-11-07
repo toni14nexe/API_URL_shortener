@@ -421,7 +421,7 @@
 					"response": []
 				},
 				{
-					"name": "Save shortener Copy",
+					"name": "Edit Shortener",
 					"event": [
 						{
 							"listen": "prerequest",

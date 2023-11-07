@@ -19,9 +19,15 @@ exports.sendValidationEmail = (recieverData, hash) => {
     },
     to: recieverData.email,
     subject: "URL Shortener - Account verification",
-    html: `<span style="color: black">Hi <b>${recieverData.username}</b>,<br><br>To verify your <b>URL Shortener
-      </b> account click on this: <a href="${process.env.WEB_APP_LINK}/account-verification?
-      userId=${recieverData._id}&hash=${hash}">link</a><br><br>URL Shortener Application</span>`,
+    html: `<span style="color: black">Hi <b>${
+      recieverData.username
+    }</b>,<br><br>To verify your <b>URL Shortener
+      </b> account click on this: <a href="${
+        process.env.WEB_APP_LINK
+      }/account-verification?
+      userId=${recieverData._id}&hash=${encodeURI(
+      hash
+    )}">link</a><br><br>URL Shortener Application</span>`,
   };
   sendMail(mailOptions);
 };
@@ -48,8 +54,12 @@ exports.sendBeforePasswordReset = (recieverData, hash) => {
     },
     to: recieverData.email,
     subject: "URL Shortener - Password reset request",
-    html: `<span style="color: black">Hi <b>${recieverData.username}</b>,<br><br>To reset your <b>URL 
-    Shortener</b> password click on this: <a href="${process.env.WEB_APP_LINK}/reset-password/${hash}">
+    html: `<span style="color: black">Hi <b>${
+      recieverData.username
+    }</b>,<br><br>To reset your <b>URL 
+    Shortener</b> password click on this: <a href="${
+      process.env.WEB_APP_LINK
+    }/reset-password?userId=${recieverData._id}&hash=${encodeURI(hash)}">
     link</a><br><br>URL Shortener Application</span>`,
   };
   sendMail(mailOptions);

@@ -80,7 +80,7 @@ exports.userLogin = (req, res, next) => {
                   username: user.username,
                 },
                 process.env.TOKEN_SECRET_KEY,
-                { expiresIn: "1h" }
+                { expiresIn: "48h" }
               );
               res.status(200).json({
                 message: "Authentication successful",
@@ -159,7 +159,7 @@ exports.deleteUser = (req, res, next) => {
 };
 
 exports.validateUser = (req, res, next) => {
-  User.findById(req.params.userId)
+  User.findById(decodeURI(req.params.userId))
     .select("_id username email role validation createdAt")
     .exec()
     .then((doc) => {
@@ -170,9 +170,10 @@ exports.validateUser = (req, res, next) => {
         )
           .exec()
           .then(() => {
+            const tempEmail = decodeURI(req.params.hash);
             bcrypt.compare(
               doc.email,
-              req.params.hash.replaceAll("|*+|", "/"),
+              tempEmail.replaceAll("|*+|", "/"),
               (error, result) => {
                 if (error || !result)
                   res.status(401).json({ message: "Unauthorized error" });

@@ -21,9 +21,9 @@ app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 app.use((req, res, next) => {
   // TO DO - here set domain to allow CORS
-  // change '*' to your doman, example: 'http://my-page.com'
+  // change '*' to your domain, for example: 'http://my-page.com'
 
-  res.header("Access-Control-Allow-Orign", "*");
+  res.header("Access-Control-Allow-Origin", process.env.WEB_APP_LINK);
   res.header(
     "Access-Control-Allow-Headers",
     "Origin, X-Requested-With, Content-type, Accept, Authorization"
@@ -34,7 +34,6 @@ app.use((req, res, next) => {
   }
   next();
 });
-
 // -------- ROUTES FOR METHODS HANDLING -------- //
 
 app.use("/users", require("./api/routes/users"));

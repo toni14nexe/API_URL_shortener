@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
 const User = require("../models/user");
 const jwt = require("jsonwebtoken");
-const emailSender = require("../../modules/nodemailer");
+const emailSender = require("../../../modules/nodemailer");
 const { errorHandler, responseHandler } = require("../responseHandler");
 
 const passwordRegex =

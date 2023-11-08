@@ -1,4 +1,4 @@
-const User = require("../models/user");
+const User = require("../api/models/user");
 const axios = require("axios");
 
 const API_link = "http://localhost:3000";

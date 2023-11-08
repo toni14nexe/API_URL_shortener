@@ -1,4 +1,4 @@
-const Shortener = require("../models/shortener");
+const Shortener = require("../api/models/shortener");
 const axios = require("axios");
 
 const API_link = "http://localhost:3000";

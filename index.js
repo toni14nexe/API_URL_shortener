@@ -1,6 +1,5 @@
 const express = require("express");
 const app = express();
-const morgan = require("morgan");
 const bodyParser = require("body-parser");
 const mongoose = require("./modules/mongoose");
 const swaggerUi = require("swagger-ui-express");
@@ -14,7 +13,6 @@ require("dotenv").config({
 
 mongoose.connect();
 
-app.use(morgan("dev"));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
@@ -36,8 +34,8 @@ app.use((req, res, next) => {
 });
 // -------- ROUTES FOR METHODS HANDLING -------- //
 
-app.use("/users", require("./api/routes/users"));
-app.use("/shorteners", require("./api/routes/shortener"));
+app.use("/users", require("./src/api/services/users"));
+app.use("/shorteners", require("./src/api/services/shortener"));
 
 // --------------------------------------------- //
 

@@ -1,25 +1,21 @@
 const express = require("express");
 const router = express.Router();
-const shortenerController = require("../controllers/shorteners");
+const ShortenerController = require("../controllers/shorteners");
 const authCheck = require("../middleware/authCheck");
 
 // Create new shortener
-router.post("/", authCheck, shortenerController.saveShortener);
+router.post("/", authCheck, ShortenerController.save);
 
 // Get logged user shorteners
-router.get("/", authCheck, shortenerController.getLoggedUserShorteners);
+router.get("/", authCheck, ShortenerController.getAll);
 
 // Get logged user shortener by ID
-router.get(
-  "/:shortenerId",
-  authCheck,
-  shortenerController.getLoggedUserShortener
-);
+router.get("/:shortenerId", authCheck, ShortenerController.get);
 
 // Update shortener value by ID
-router.put("/:shortenerId", authCheck, shortenerController.updateShortener);
+router.put("/:shortenerId", authCheck, ShortenerController.update);
 
 // Delete shortener value by ID
-router.delete("/:shortenerId", authCheck, shortenerController.deleteShortener);
+router.delete("/:shortenerId", authCheck, ShortenerController.delete);
 
 module.exports = router;

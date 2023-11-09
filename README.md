@@ -20,6 +20,13 @@ The used database is MongoDB.
 - WEB_APP_LINK = # your web/frontend app link
 - GMAIL_ACCOUNT = # your gmail email
 - GMAIL_APP_PASS = # your Gmail password
+- API_LINK = # your API app link (required for testing)
+- TEST_USER_USERNAME = # required for testing
+- TEST_USER_EMAIL = # required for testing
+- TEST_USER_PASSWORD = # required for testing
+- TEST_USER_ID = # required for testing
+- TEST_USER_EMAIL_HASH = # required for testing - get it on signup response or in verification email
+- TEST_USER_RESET_PASSWORD_HASH - # required for testing - get it on reset password email request or in reset password email
 
 4. [Setup Gmail app password for this project](https://www.youtube.com/watch?v=lSURGX0JHbA&ab_channel=MailsDaddySoftware)
 5. Run project: `npm run start`

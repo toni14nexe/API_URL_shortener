@@ -16,14 +16,14 @@ class UserController {
         if (user.length)
           return errorHandler(res, {
             status: 409,
-            message: "Username already exists",
+            message: "Username already exist",
           });
 
         user = await User.find({ email: req.body.email }).exec();
         if (user.length)
           return errorHandler(res, {
             status: 409,
-            message: "Email already exists",
+            message: "Email already exist",
           });
 
         bcrypt.hash(req.body.password, 10, (error, hash) => {
@@ -286,7 +286,12 @@ class UserController {
       } catch (error) {
         return errorHandler(res, error);
       }
-    }
+    } else
+      return errorHandler(res, {
+        status: 409,
+        message:
+          "Password should be at least 8 letters long and should contain at least one uppercase letter, one lowercase letter, one number and one special character",
+      });
   }
 }
 

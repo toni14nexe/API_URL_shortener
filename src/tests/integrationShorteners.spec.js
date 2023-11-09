@@ -1,7 +1,9 @@
 const Shortener = require("../api/models/shortener");
 const axios = require("axios");
 
-const API_link = "http://localhost:3000";
+const API_link = process.env.API_LINK;
+const TEST_USER_USERNAME = process.env.TEST_USER_USERNAME;
+const TEST_USER_PASSWORD = process.env.TEST_USER_PASSWORD;
 let authorization = undefined;
 let newShoretenerId = undefined;
 
@@ -11,8 +13,8 @@ describe("User model test", () => {
   it("Get authorization", (done) => {
     axios
       .post(`${API_link}/users/login`, {
-        username: "test1234",
-        password: "Test1234*",
+        username: TEST_USER_USERNAME,
+        password: TEST_USER_PASSWORD,
       })
       .then((response) => {
         authorization = `token ${response.data.user.token}`;

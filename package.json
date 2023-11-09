@@ -5,8 +5,8 @@
   "main": "index.js",
   "scripts": {
     "start": "nodemon server.js",
-    "test": "jest",
-    "test:watch": "jest --watch"
+    "test": "jest --setupFiles dotenv/config",
+    "test:watch": "jest --watch dotenv/config"
   },
   "author": "Toni Kolarić",
   "license": "ISC",

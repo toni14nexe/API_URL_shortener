@@ -1,7 +1,7 @@
 const User = require("../api/models/user");
 const axios = require("axios");
 
-const API_link = "http://localhost:3000";
+const API_link = process.env.API_LINK;
 const tempPassword = "JestTest1234*";
 let testUser = undefined;
 let authorization = undefined;

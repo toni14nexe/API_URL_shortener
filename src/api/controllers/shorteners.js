@@ -43,33 +43,43 @@ class ShortenerController {
   }
 
   static async update(req, res, next) {
-    try {
-      const response = await Shortener.findOne({
-        _id: req.params.shortenerId,
-      })
-        .select("url shortValue createdAt userId")
-        .exec();
-      if (!response?._id) return errorHandler(res, { response: 404 });
-      if (response.userId !== req.userData._id)
-        return errorHandler(res, { status: 401 });
+    const urlRegex =
+      /^(https?:\/\/)?([a-zA-Z0-9.-]+\.[a-zA-Z]{2,}(?:\.[a-zA-Z]{2,})*)?(\/\S*)?$/;
+
+    if (urlRegex.test(req.body.url))
       try {
-        await Shortener.updateOne(
-          { _id: req.params.shortenerId },
-          { $set: { url: req.body.url, shortValue: req.body.shortValue } }
-        ).exec();
-        responseHandler(res, 200, {
-          message: "Shortener changed successfully",
-          shortener: {
-            ...response._doc,
-            url: req.body.url,
-            shortValue: req.body.shortValue,
-          },
-        });
+        const response = await Shortener.findOne({
+          _id: req.params.shortenerId,
+        })
+          .select("url shortValue createdAt userId")
+          .exec();
+        if (!response?._id) return errorHandler(res, { response: 404 });
+        if (response.userId !== req.userData._id)
+          return errorHandler(res, { status: 401 });
+        try {
+          await Shortener.updateOne(
+            { _id: req.params.shortenerId },
+            { $set: { url: req.body.url, shortValue: req.body.shortValue } }
+          ).exec();
+          responseHandler(res, 200, {
+            message: "Shortener changed successfully",
+            shortener: {
+              ...response._doc,
+              url: req.body.url,
+              shortValue: req.body.shortValue,
+            },
+          });
+        } catch (error) {
+          return errorHandler(res, error);
+        }
       } catch (error) {
         return errorHandler(res, error);
       }
-    } catch (error) {
-      return errorHandler(res, error);
+    else {
+      return errorHandler(res, {
+        status: 409,
+        message: "URL validation failed",
+      });
     }
   }
 

@@ -1,11 +1,11 @@
 const express = require("express");
 const app = express();
 const bodyParser = require("body-parser");
-const mongoose = require("./modules/mongoose");
+const mongoose = require("./src/modules/mongoose");
 const swaggerUi = require("swagger-ui-express");
 const fs = require("fs");
 const YAML = require("yaml");
-const file = fs.readFileSync("./swagger.yaml", "utf8");
+const file = fs.readFileSync("./src/documentation/swagger.yaml", "utf8");
 const swaggerDocument = YAML.parse(file);
 require("dotenv").config({
   path: "./.env",
@@ -34,8 +34,8 @@ app.use((req, res, next) => {
 });
 // -------- ROUTES FOR METHODS HANDLING -------- //
 
-app.use("/users", require("./src/api/services/users"));
-app.use("/shorteners", require("./src/api/services/shortener"));
+app.use("/users", require("./src/api/routes/users"));
+app.use("/shorteners", require("./src/api/routes/shorteners"));
 
 // --------------------------------------------- //
 

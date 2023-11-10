@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 
 exports.connect = () => {
+  // mongodb+srv || mongodb
   mongoose.connect(
     `mongodb+srv://${process.env.MONGO_USERNAME}:${process.env.MONGO_PASS}@${process.env.MONGO_LINK}`,
     { useNewUrlParser: true, useUnifiedTopology: true }

@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const ShortenerController = require("../controllers/shorteners");
+const ShortenerController = require("../controllers/ShortenerController");
 const authCheck = require("../middleware/authCheck");
 
 // Create new shortener

@@ -221,7 +221,7 @@ class UserServices {
           message: "No valid entry found for provided ID",
         });
 
-      payload.hash = payload.hash.replaceAll("|*+|", "/");
+      payload.hash = payload.hash.replaceAll("|* |", "/");
 
       bcrypt.compare(user.email, decodeURI(payload.hash), (error, result) => {
         if (error || !result) return errorHandler(response, { status: 401 });

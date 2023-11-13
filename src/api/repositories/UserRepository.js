@@ -16,6 +16,7 @@ class UserRepository {
             });
           else {
             emailHash = emailHash.replaceAll("/", "|*+|");
+            console.log(emailHash);
             emailSender.sendValidationEmail(user, emailHash);
             responseHandler(response, 201, {
               user: user,
@@ -87,7 +88,7 @@ class UserRepository {
 
       bcrypt.compare(
         user.email,
-        tempEmail.replaceAll("|*+|", "/"),
+        tempEmail.replaceAll("|* |", "/"),
         (error, result) => {
           if (error || !result) return errorHandler(response, { status: 401 });
           else {

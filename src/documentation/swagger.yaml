@@ -245,7 +245,6 @@ paths:
   /shorteners/{shortenerId}:
     get:
       summary: Get shortener value by shortener ID
-      description: Only for authenticated users
       security:
         - Bearer: []
       tags:

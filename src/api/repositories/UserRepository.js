@@ -16,7 +16,6 @@ class UserRepository {
             });
           else {
             emailHash = emailHash.replaceAll("/", "|*+|");
-            console.log(emailHash);
             emailSender.sendValidationEmail(user, emailHash);
             responseHandler(response, 201, {
               user: user,
@@ -111,7 +110,7 @@ class UserRepository {
         emailSender.sendAfterPasswordReset(user._doc);
         responseHandler(response, 200, {
           message: "User password changed successfully",
-          debt: { ...user._doc },
+          user: { ...user._doc },
         });
       })
       .catch((error) => {

@@ -10,7 +10,7 @@ router.post("/", authCheck, ShortenerController.save);
 router.get("/", authCheck, ShortenerController.getAll);
 
 // Get logged user shortener by ID
-router.get("/:shortenerId", authCheck, ShortenerController.get);
+router.get("/:shortenerId", ShortenerController.get);
 
 // Update shortener value by ID
 router.put("/:shortenerId", authCheck, ShortenerController.update);
